@@ -1,6 +1,10 @@
 # Keyword In Tweet
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![](https://img.shields.io/npm/l/keyword-in-tweet)](https://opensource.org/licenses/MIT)
+
+[![](https://img.shields.io/bundlephobia/min/keyword-in-tweet?color=orange)](https://opensource.org/licenses/MIT)
+
+[![](https://img.shields.io/npm/types/keyword-in-tweet)](https://opensource.org/licenses/MIT)
 
 ## Contents
 
