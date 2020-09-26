@@ -1,3 +1,7 @@
+export interface ConditionalConfig {
+  includeQuotes?: boolean;
+}
+
 /**
  * @desc Determine if the provided keyword is (exactly) in a tweet; this means hashtags, mentions and links with http are excluded
  * @param {string} tweetText - The exact text of the tweet
