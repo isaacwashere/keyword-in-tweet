@@ -1,0 +1,43 @@
+{
+  "name": "keyword-in-tweet",
+  "version": "1.0.0",
+  "description": "A package that, when a tweet's text and a keyword are passed in, evaluates if the keyword is in the tweet",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "jest --config jestconfig.json",
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test",
+    "preversion": "npm run build && npm test"
+  },
+  "keywords": [
+    "text",
+    "phrase",
+    "parse",
+    "text",
+    "tweet",
+    "keyword",
+    "twitter"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isaacwashere/keyword-in-tweet.git"
+  },
+  "author": "Isaac Curtiss <ijcurtiss7@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/isaacwashere/keyword-in-tweet/issues"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.14",
+    "jest": "^26.4.2",
+    "prettier": "^2.1.2",
+    "ts-jest": "^26.4.0",
+    "typescript": "^4.0.3"
+  },
+  "files": [
+    "lib/**/*"
+  ]
+}
