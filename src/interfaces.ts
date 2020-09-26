@@ -1,7 +1,3 @@
-interface ConditionalConfig {
-  includeQuotes?: boolean;
-}
-
 interface KeywordConfig {
   keyword: string;
   startOfKeyword: string;
