@@ -2,6 +2,10 @@
 
 ## Released
 
+## [1.1.0] - 2020-09-26
+
+- Export the conditional config so that it can be found
+
 ## [1.0.2] - 2020-09-26
 
 ### Fixed
