@@ -81,9 +81,9 @@ const spacedOutKeyword = (
     .join('')
     .split('')
     .forEach((term, currentIndex) => {
+      const isAltMidTerm = termIsCorrectMidAlt(term, indexEndOfKeyword, config, currentIndex);
       const isStartTerm = termIsCorrectStart(term, indexStartOfKeyword, config, currentIndex);
 
-      const isAltMidTerm = termIsCorrectMidAlt(term, indexEndOfKeyword, config, currentIndex);
       const isMiddleTerm = termIsCorrectMid(
         term,
         indexStartOfKeyword,
@@ -91,7 +91,6 @@ const spacedOutKeyword = (
         config,
         currentIndex,
       );
-
       const isEndTerm = termIsCorrectEnd(
         term,
         indexEndOfKeyword,
@@ -208,8 +207,8 @@ const termIsCorrectMid = (
   const { endOfKeyword, completeKeywordArr } = config;
 
   return (
-    completeKeywordArr.includes(term) &&
     currentIndex > indexStartOfKeyword &&
+    completeKeywordArr.includes(term) &&
     indexEndOfKeyword === 0 &&
     term !== endOfKeyword &&
     !indexStartOfKeyword &&
