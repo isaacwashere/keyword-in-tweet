@@ -15,7 +15,7 @@ export const KeywordInTweet = (
 ): boolean => {
   const config = generateKeywordConfig(keyword);
   const normalSpacingKeywordCheck = tweetContainsKeyword(tweetText, config, conditionalConfig);
-  const spaceBetweenKeywordCheck = spacedOutKeyword(tweetText, config);
+  const spaceBetweenKeywordCheck = spacedOutKeyword(tweetText, config, conditionalConfig);
 
   if (normalSpacingKeywordCheck || spaceBetweenKeywordCheck) return true;
 
@@ -30,13 +30,14 @@ export const KeywordInTweet = (
 const generateKeywordConfig = (keyword: string): KeywordConfig => {
   return {
     keyword,
+    completeKeywordArr: keyword.split(''),
     startOfKeyword: keyword[0],
     endOfKeyword: keyword[keyword.length - 1],
     arrayLengthOfKeyword: keyword.length - 1,
     lengthOfKeyword: keyword.length,
     earliestStartingIndexOfKeyword: 0,
     earliestEndingIndexOfKeyword: keyword.length - 1,
-    earliestSuffixCharIndexLocation: keyword.length + 1,
+    earliestSuffixCharIndexLocation: keyword.length,
   };
 };
 
@@ -63,24 +64,75 @@ const includesIrrelevantChar = (term: string, conditionalConfig?: ConditionalCon
  * @param {KeywordConfig} config - The object containing the info used to test the keyword
  * @returns {boolean}
  */
-const spacedOutKeyword = (tweetText: string, config: KeywordConfig): boolean => {
-  const { startOfKeyword, endOfKeyword, arrayLengthOfKeyword } = config;
+const spacedOutKeyword = (
+  tweetText: string,
+  config: KeywordConfig,
+  conditionalConfig?: ConditionalConfig,
+): boolean => {
+  const {
+    startOfKeyword,
+    endOfKeyword,
+    arrayLengthOfKeyword,
+    lengthOfKeyword,
+    completeKeywordArr,
+  } = config;
 
-  let indexStartOfKeyword = 0;
+  let indexStartOfKeyword: any = null;
   let indexEndOfKeyword = 0;
-  tweetText.split(' ').forEach((term, currentIndex) => {
-    if (term.toLowerCase() === startOfKeyword && indexStartOfKeyword === 0)
-      indexStartOfKeyword = currentIndex;
-    if (
-      term.toLowerCase() === endOfKeyword &&
-      indexStartOfKeyword !== 0 &&
-      currentIndex === indexStartOfKeyword + arrayLengthOfKeyword
-    )
-      indexEndOfKeyword = currentIndex;
-    return;
-  });
+  const finalArr: string[] = [];
 
-  return indexEndOfKeyword - indexStartOfKeyword === arrayLengthOfKeyword;
+  tweetText
+    .split(' ')
+    .filter((term: string) => includesIrrelevantChar(term, conditionalConfig))
+    .join('')
+    .split('')
+    .forEach((term, currentIndex) => {
+      if (
+        term.toLowerCase() === startOfKeyword &&
+        !indexStartOfKeyword &&
+        completeKeywordArr.includes(term) &&
+        currentIndex !== lengthOfKeyword
+      ) {
+        finalArr.push(term);
+        indexStartOfKeyword = currentIndex;
+      }
+      if (
+        !indexStartOfKeyword &&
+        currentIndex > indexStartOfKeyword &&
+        indexEndOfKeyword === 0 &&
+        term &&
+        term !== endOfKeyword &&
+        completeKeywordArr.includes(term)
+      ) {
+        finalArr.push(term);
+      }
+
+      if (
+        indexEndOfKeyword !== 0 &&
+        currentIndex < indexEndOfKeyword &&
+        term &&
+        completeKeywordArr.includes(term)
+      ) {
+        finalArr.push(term);
+      }
+
+      if (
+        term.toLowerCase() === endOfKeyword &&
+        indexStartOfKeyword &&
+        currentIndex === indexStartOfKeyword + arrayLengthOfKeyword &&
+        indexEndOfKeyword === 0 &&
+        completeKeywordArr.includes(term)
+      ) {
+        finalArr.push(term);
+        indexEndOfKeyword = currentIndex;
+      }
+      return;
+    });
+
+  return (
+    indexEndOfKeyword - indexStartOfKeyword === lengthOfKeyword ||
+    finalArr.length === lengthOfKeyword
+  );
 };
 
 /**
@@ -118,12 +170,16 @@ const termContainsKeywordAndNoLettersAfter = (term: string, config: KeywordConfi
     earliestStartingIndexOfKeyword,
     startOfKeyword,
     endOfKeyword,
+    arrayLengthOfKeyword,
   } = config;
+  const hasSuffixChar = aSuffixCharExistsAndItsNotALetter(term, config);
+
+  if (term[earliestStartingIndexOfKeyword] !== startOfKeyword) return false;
 
   return (
     term.split('')[earliestStartingIndexOfKeyword] === startOfKeyword &&
-    term.split('')[earliestEndingIndexOfKeyword] === endOfKeyword &&
-    aSuffixCharExistsAndItsNotALetter(term, config)
+    term.split('')[arrayLengthOfKeyword] === endOfKeyword &&
+    hasSuffixChar
   );
 };
 
@@ -134,14 +190,15 @@ const termContainsKeywordAndNoLettersAfter = (term: string, config: KeywordConfi
  * @return {boolean} whether the term in the tweet is the keyword
  */
 const aSuffixCharExistsAndItsNotALetter = (term: string, config: KeywordConfig): boolean => {
-  const { earliestSuffixCharIndexLocation } = config;
+  const { earliestSuffixCharIndexLocation, lengthOfKeyword } = config;
 
-  if (!term.split('')[earliestSuffixCharIndexLocation]) return true;
-  if (
-    term.split('')[earliestSuffixCharIndexLocation] &&
-    !term.split('')[earliestSuffixCharIndexLocation].match(/[a-zA-Z]/i)
-  )
+  if (!term.split('')[earliestSuffixCharIndexLocation]) {
     return true;
+  }
+
+  if (term.split('')[lengthOfKeyword] && !term.split('')[lengthOfKeyword].match(/[a-zA-Z]/i)) {
+    return true;
+  }
 
   return false;
 };
