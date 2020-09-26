@@ -30,15 +30,15 @@ npm install keyword-in-tweet
 To use:
 
 ```js
-import { KeywordInTweet } from 'keyword-in-tweet
+import { KeywordInTweet } from 'keyword-in-tweet';
 
 const myTweet = {
-  text: '@Person hey there!'
-}
-const myKeyWord = 'hey'
+  text: '@Person hey there!',
+};
+const myKeyWord = 'hey';
 
 // KeywordInTweet would return true
-const isMyKeywordPresent = KeywordInTweet(myTweet.text, myKeyword)
+const isMyKeywordPresent = KeywordInTweet(myTweet.text, myKeyword);
 ```
 
 ### More Examples
@@ -48,25 +48,25 @@ Here are a few more examples:
 Example A: With the following example, `KeywordInTweet` would return true
 
 ```js
-import { KeywordInTweet } from 'keyword-in-tweet
+import { KeywordInTweet } from 'keyword-in-tweet';
 
 const myTweet = {
-  text: '@Person !hey! there, #HeyItsTime! @PersonTwo @HeyYou Hey'
-}
-const myKeyWord = 'hey'
+  text: '@Person !hey! there, #HeyItsTime! @PersonTwo @HeyYou Hey',
+};
+const myKeyWord = 'hey';
 
-const isMyKeywordPresent = KeywordInTweet(myTweet.text, myKeyword)
+const isMyKeywordPresent = KeywordInTweet(myTweet.text, myKeyword);
 ```
 
 Example B: With the following example, `KeywordInTweet` would return false since the exact word, in that format is not in the tweet
 
 ```js
-import { KeywordInTweet } from 'keyword-in-tweet
+import { KeywordInTweet } from 'keyword-in-tweet';
 
 const myTweet = {
-  text: '@Person !hey! there, #HeyItsTime! @PersonTwo @HeyYou'
-}
-const myKeyWord = 'hey'
+  text: '@Person !hey! there, #HeyItsTime! @PersonTwo @HeyYou',
+};
+const myKeyWord = 'hey';
 
-const isMyKeywordPresent = KeywordInTweet(myTweet.text, myKeyword)
+const isMyKeywordPresent = KeywordInTweet(myTweet.text, myKeyword);
 ```
