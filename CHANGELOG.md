@@ -2,6 +2,10 @@
 
 ## Released
 
+## [1.2.2] - 2020-09-26
+
+- Fixes Readme
+
 ## [1.2.1] - 2020-09-26
 
 - Changes badge colors
