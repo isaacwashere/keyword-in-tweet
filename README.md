@@ -4,9 +4,12 @@
 
 ## Contents
 
-[About](#about)  
+[About](#about)
+
 [Installation](#installation)  
-[Usage](#usage)
+
+[Usage](#usage)  
+
 [Examples](#more-examples)
 
 ### About
@@ -38,8 +41,6 @@ const isMyKeywordPresent = KeywordInTweet(myTweet.text, myKeyword);
 ```
 
 ### More Examples
-
-Here are a few more examples:
 
 Example A: With the following example, `KeywordInTweet` would return true
 
