@@ -7,7 +7,7 @@
 [About](#about)  
 [Installation](#installation)  
 [Usage](#usage)
-[Examples](#examples)
+[Examples](#more-examples)
 
 ### About
 
@@ -19,15 +19,11 @@
 
 ### Installation
 
-To install:
-
 ```shell
 npm install keyword-in-tweet
 ```
 
 ### Usage
-
-To use:
 
 ```js
 import { KeywordInTweet } from 'keyword-in-tweet';
