@@ -2,6 +2,10 @@
 
 ## Released
 
+## [1.2.1] - 2020-09-26
+
+- Changes badge colors
+
 ## [1.2.0] - 2020-09-26
 
 - Add error condition and corresponding error-handling test
