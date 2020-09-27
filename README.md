@@ -1,6 +1,6 @@
 # Keyword In Tweet
 
-![](https://img.shields.io/npm/l/keyword-in-tweet?style=for-the-badge) ![](https://img.shields.io/npm/types/keyword-in-tweet?style=for-the-badge) ![](https://img.shields.io/bundlephobia/min/keyword-in-tweet?color=orange&style=for-the-badge)
+![](https://img.shields.io/npm/v/keyword-in-tweet?color=red&style=for-the-badge) ![](https://img.shields.io/npm/types/keyword-in-tweet?style=for-the-badge) ![](https://img.shields.io/npm/l/keyword-in-tweet?style=for-the-badge&color=red) ![](https://img.shields.io/bundlephobia/min/keyword-in-tweet?color=green&style=for-the-badge)
 
 ## Contents
 
