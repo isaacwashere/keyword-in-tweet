@@ -13,9 +13,11 @@ export const KeywordInTweet = (
   keyword: string,
   conditionalConfig?: ConditionalConfig,
 ): boolean => {
+  if (!tweetText || !keyword) throw new Error('KeywordInTweet received invalid arguments');
+
   const config = generateKeywordConfig(keyword);
   const normalSpacingKeywordCheck = tweetContainsKeyword(tweetText, config, conditionalConfig);
-  const spaceBetweenKeywordCheck = spacedOutKeyword(tweetText, config);
+  const spaceBetweenKeywordCheck = spacedOutKeyword(tweetText, config, conditionalConfig);
 
   if (normalSpacingKeywordCheck || spaceBetweenKeywordCheck) return true;
 
@@ -30,13 +32,14 @@ export const KeywordInTweet = (
 const generateKeywordConfig = (keyword: string): KeywordConfig => {
   return {
     keyword,
+    completeKeywordArr: keyword.split(''),
     startOfKeyword: keyword[0],
     endOfKeyword: keyword[keyword.length - 1],
     arrayLengthOfKeyword: keyword.length - 1,
     lengthOfKeyword: keyword.length,
     earliestStartingIndexOfKeyword: 0,
     earliestEndingIndexOfKeyword: keyword.length - 1,
-    earliestSuffixCharIndexLocation: keyword.length + 1,
+    earliestSuffixCharIndexLocation: keyword.length,
   };
 };
 
@@ -58,33 +61,69 @@ const includesIrrelevantChar = (term: string, conditionalConfig?: ConditionalCon
 };
 
 /**
- * @desc Determine if the tweet contains the keyword spaced out (ie. b a r k) by splitting the tweet into an array and when we see the start of the keyword, saving that index and when we see the end of the keyword, saving that index, and subtracting to see if they were consecutive and the tweet contains the keyword
+ * @desc Determine if the tweet contains the keyword spaced out (ie. b a r k)
  * @param {string} tweetText - the actual text of the tweet
  * @param {KeywordConfig} config - The object containing the info used to test the keyword
  * @returns {boolean}
  */
-const spacedOutKeyword = (tweetText: string, config: KeywordConfig): boolean => {
-  const { startOfKeyword, endOfKeyword, arrayLengthOfKeyword } = config;
+const spacedOutKeyword = (
+  tweetText: string,
+  config: KeywordConfig,
+  conditionalConfig?: ConditionalConfig,
+): boolean => {
+  const { lengthOfKeyword } = config;
 
-  let indexStartOfKeyword = 0;
-  let indexEndOfKeyword = 0;
-  tweetText.split(' ').forEach((term, currentIndex) => {
-    if (term.toLowerCase() === startOfKeyword && indexStartOfKeyword === 0)
-      indexStartOfKeyword = currentIndex;
-    if (
-      term.toLowerCase() === endOfKeyword &&
-      indexStartOfKeyword !== 0 &&
-      currentIndex === indexStartOfKeyword + arrayLengthOfKeyword
-    )
-      indexEndOfKeyword = currentIndex;
-    return;
-  });
+  let indexStartOfKeyword: any = null;
+  let indexEndOfKeyword: number = 0;
+  const relevantTerms: string[] = [];
 
-  return indexEndOfKeyword - indexStartOfKeyword === arrayLengthOfKeyword;
+  tweetText
+    .split(' ')
+    .filter((term: string) => includesIrrelevantChar(term, conditionalConfig))
+    .join('')
+    .split('')
+    .forEach((term, currentIndex) => {
+      const isAltMidTerm = termIsCorrectMidAlt(term, indexEndOfKeyword, config, currentIndex);
+      const isStartTerm = termIsCorrectStart(term, indexStartOfKeyword, config, currentIndex);
+
+      const isMiddleTerm = termIsCorrectMid(
+        term,
+        indexStartOfKeyword,
+        indexEndOfKeyword,
+        config,
+        currentIndex,
+      );
+      const isEndTerm = termIsCorrectEnd(
+        term,
+        indexEndOfKeyword,
+        indexStartOfKeyword,
+        config,
+        currentIndex,
+      );
+
+      if (isStartTerm) {
+        relevantTerms.push(term);
+        indexStartOfKeyword = currentIndex;
+      }
+
+      if (isMiddleTerm || isAltMidTerm) relevantTerms.push(term);
+
+      if (isEndTerm) {
+        relevantTerms.push(term);
+        indexEndOfKeyword = currentIndex;
+      }
+
+      return;
+    });
+
+  return (
+    indexEndOfKeyword - indexStartOfKeyword === lengthOfKeyword ||
+    relevantTerms.length === lengthOfKeyword
+  );
 };
 
 /**
- * @desc Determine if the tweet contains the keyword byt splitting the text of the tweet into an array, filtering out irrelevant chars, checking to see if the remainder include the keyword, then checking if those remaining terms contain the keyword without any weird letters at the end. Return if the length of the 'validTerms' array is greater than 1.
+ * @desc Determine if the tweet contains the keyword. Return if the length of the 'validTerms' array is greater than 1.
  * @param {string} tweetText - the text of the tweet
  * @param {KeywordConfig} config - The object containing the info used to test the keyword
  * @param {ConditionalConfig} conditionalConfig - Unused at the moment, but we intend to conditionally exclude quotations
@@ -107,41 +146,108 @@ const tweetContainsKeyword = (
 };
 
 /**
- * @desc Determine if the term is the keyword without letters after it. Do this by checking to see if the first letter is the 1st letter in the keyword, if the upcoming last letter is the last letter in the keyword and if the letter after the last letter in the keyword is also a letter
+ * @desc Determine if the term is the exact keyword (i.e. the term cannot have letters after it)
  * @param {string} term - a single term/word in the tweet to examine
  * @param {KeywordConfig} config - The object containing the info used to test the keyword
  * @return {boolean}
  */
 const termContainsKeywordAndNoLettersAfter = (term: string, config: KeywordConfig): boolean => {
   const {
-    earliestEndingIndexOfKeyword,
     earliestStartingIndexOfKeyword,
     startOfKeyword,
     endOfKeyword,
+    arrayLengthOfKeyword,
   } = config;
+  const hasSuffixChar = aSuffixCharExistsAndItsNotALetter(term, config);
 
   return (
     term.split('')[earliestStartingIndexOfKeyword] === startOfKeyword &&
-    term.split('')[earliestEndingIndexOfKeyword] === endOfKeyword &&
-    aSuffixCharExistsAndItsNotALetter(term, config)
+    term.split('')[arrayLengthOfKeyword] === endOfKeyword &&
+    hasSuffixChar
   );
 };
 
 /**
- * @desc Determine if the term has a suffix char, if it doesn't then that means the keyword is present, if the suffix char is there and it is not a letter, that means we're also okay.
+ * @desc Determine if the term has a suffix char. If no suffix char is present, or the suffix char is not a letter, return true, else return false
  * @param {string} term - A single term to examine
  * @param {KeywordConfig} config - The object containing the info used to test the keyword
  * @return {boolean} whether the term in the tweet is the keyword
  */
 const aSuffixCharExistsAndItsNotALetter = (term: string, config: KeywordConfig): boolean => {
-  const { earliestSuffixCharIndexLocation } = config;
+  const { earliestSuffixCharIndexLocation, lengthOfKeyword } = config;
 
   if (!term.split('')[earliestSuffixCharIndexLocation]) return true;
-  if (
-    term.split('')[earliestSuffixCharIndexLocation] &&
-    !term.split('')[earliestSuffixCharIndexLocation].match(/[a-zA-Z]/i)
-  )
+  if (term.split('')[lengthOfKeyword] && !term.split('')[lengthOfKeyword].match(/[a-zA-Z]/i))
     return true;
 
   return false;
+};
+
+const termIsCorrectStart = (
+  term: string,
+  indexStartOfKeyword: number,
+  config: KeywordConfig,
+  currentIndex: number,
+): boolean => {
+  const { startOfKeyword, lengthOfKeyword, completeKeywordArr } = config;
+
+  return (
+    term.toLowerCase() === startOfKeyword &&
+    completeKeywordArr.includes(term) &&
+    currentIndex !== lengthOfKeyword &&
+    !indexStartOfKeyword
+  );
+};
+
+const termIsCorrectMid = (
+  term: string,
+  indexStartOfKeyword: number,
+  indexEndOfKeyword: number,
+  config: KeywordConfig,
+  currentIndex: number,
+): boolean => {
+  const { endOfKeyword, completeKeywordArr } = config;
+
+  return (
+    currentIndex > indexStartOfKeyword &&
+    completeKeywordArr.includes(term) &&
+    indexEndOfKeyword === 0 &&
+    term !== endOfKeyword &&
+    !indexStartOfKeyword &&
+    !!term
+  );
+};
+
+const termIsCorrectMidAlt = (
+  term: string,
+  indexEndOfKeyword: number,
+  config: KeywordConfig,
+  currentIndex: number,
+): boolean => {
+  const { completeKeywordArr } = config;
+
+  return (
+    completeKeywordArr.includes(term) &&
+    currentIndex < indexEndOfKeyword &&
+    indexEndOfKeyword !== 0 &&
+    !!term
+  );
+};
+
+const termIsCorrectEnd = (
+  term: string,
+  indexEndOfKeyword: number,
+  indexStartOfKeyword: number,
+  config: KeywordConfig,
+  currentIndex: number,
+): boolean => {
+  const { completeKeywordArr, endOfKeyword, arrayLengthOfKeyword } = config;
+
+  return (
+    currentIndex === indexStartOfKeyword + arrayLengthOfKeyword &&
+    term.toLowerCase() === endOfKeyword &&
+    completeKeywordArr.includes(term) &&
+    indexEndOfKeyword === 0 &&
+    !!indexStartOfKeyword
+  );
 };
