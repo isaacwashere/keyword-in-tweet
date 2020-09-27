@@ -13,6 +13,8 @@ export const KeywordInTweet = (
   keyword: string,
   conditionalConfig?: ConditionalConfig,
 ): boolean => {
+  if (!tweetText || !keyword) throw new Error('KeywordInTweet received invalid arguments');
+
   const config = generateKeywordConfig(keyword);
   const normalSpacingKeywordCheck = tweetContainsKeyword(tweetText, config, conditionalConfig);
   const spaceBetweenKeywordCheck = spacedOutKeyword(tweetText, config, conditionalConfig);

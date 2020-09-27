@@ -73,3 +73,15 @@ describe('KeywordInTweet with a keyword that is spaced out', () => {
     expect(KeywordInTweet(tweetEight.text, tweetEight.keyword)).toBe(tweetEight.result);
   });
 });
+
+describe('KeywordInTweet with invalid params', () => {
+  test('should throw an error', () => {
+    const tweetNine = {
+      text: '',
+      keyword: '',
+      result: 'KeywordInTweet received invalid arguments',
+    };
+
+    expect(() => KeywordInTweet(tweetNine.text, tweetNine.keyword)).toThrowError(tweetNine.result);
+  });
+});
