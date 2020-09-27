@@ -2,6 +2,11 @@
 
 ## Released
 
+## [1.2.0] - 2020-09-26
+
+- Add error condition and corresponding error-handling test
+- Improve handling of spaced out tweets
+
 ## [1.1.0] - 2020-09-26
 
 - Export the conditional config so that it can be found
